@@ -20,7 +20,8 @@
 
 		function sql_query( $query )
 		{
-		//variables for sql operations
+
+			//variables for sql operations
 			$host = "localhost";
 			$user = "phpmyadmin";
 			$pass = "Harsh1859";
@@ -34,7 +35,8 @@
 
 		function sql_queryID( $query )
 		{
-		//variables for sql operations
+	
+			//variables for sql operations
 			$host = "localhost";
 			$user = "phpmyadmin";
 			$pass = "Harsh1859";
@@ -97,6 +99,34 @@
 		}
 
 
+		/********************Assign Location of guard**********************/
+
+		function assignLocation($uid,$lat,$lng,$startTime,$endTime)
+		{
+				
+				if(!empty($uid) && !empty($lat) && !empty($lng) && !empty($startTime) && !empty($endTime))
+				{
+								
+								
+					$insert = sql_query( "insert into asssignLocation ( uid, lat, lng, startTime, endTime ) values ( '$uid','$lat','$lng','$startTime','$endTime' )" );
+									
+						if( $insert )
+						{
+							return 'true';
+						}
+						else
+						{
+							return 'Error in sql query';
+						}
+				
+				}
+				else
+				{
+					return 'Welcome Hacker';
+				}
+
+
+		}
 
 
 	/*******************************************************
@@ -113,15 +143,15 @@
 
 				else
 				{ 
-					$epassword=encryptPassword($password);
+					//$epassword=encryptPassword($password);
 			
-					$log=sql_query("select * from user where username = '$username'");
+					$log=sql_query(" select * from adminLogin where username = '$username' ");
 					
 					if(mysqli_num_rows($log)>0)
 					{
 						if($row = mysqli_fetch_array($log))
 						{
-							if($row['password'] == $epassword)
+							if($row['password'] == $password)
 							{	
 								$_SESSION['id']=$row['id'];
 								$_SESSION['fname']=$row['fname'];
@@ -139,12 +169,23 @@
 		}
 
 
+		function getUsers()
+		{
+
+			$users = sql_query(" select * from user");
+			
+			return $users;	
+		
+		}
+		
+
 
 		if(isset($_POST['action']))
 		{
+	
 			if($_POST['action']=='signup')
 			{
-				$signup=insert_user($_POST['contact'],$_POST['fname'],$_POST['lname'],$_POST['email'],$_POST['password'],$_POST['username']);
+				$signup = insert_user($_POST['contact'],$_POST['fname'],$_POST['lname'],$_POST['email'],$_POST['password'],$_POST['username']);
 				
 					echo json_encode($signup);
 			
@@ -152,18 +193,31 @@
 			
 			else if($_POST['action']=='login')
 			{
-				$login=check_login($_POST['username'],$_POST['password']);
+				$login = check_login($_POST['username'],$_POST['password']);
 				
 				echo json_encode($login);
 			}
+
+			else if($_POST['action']=='assignLocation')
+			{
+				$assign = assignLocation($_POST['uid'],$_POST['lat'],$_POST['lng'],$_POST['startTime'],$_POST['endTime']);
+				
+				echo json_encode($assign);
+			}
+
+			else if($_POST['action']=='getUsers')
+			{
+				$users = getUsers();
+				
+				echo json_encode($users);
+			}
+
 
 			else if($_POST['action']=='logout')
 			{
 				session_destroy();
 				echo json_encode('true');
 			}	
-
-
 						
 		}
 
