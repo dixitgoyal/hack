@@ -4,13 +4,11 @@
 
 		function encryptPassword($password)
 		{
-		$salt = 'b63cc0d7241341f3419a00b289e37da7';
-		$password1 = hash('sha256', $password);
-		$ePassword = hash('sha256', $salt ^ $password1);
-		return $ePassword;
+			$salt = 'b63cc0d7241341f3419a00b289e37da7';
+			$password1 = hash('sha256', $password);
+			$ePassword = hash('sha256', $salt ^ $password1);
+			return $ePassword;
 		}
-
-
 
 	/*******************************************************
 		********************************************************
@@ -28,7 +26,7 @@
 			$dbname = "LocMon";
 			$con = mysqli_connect($host, $user, $pass, $dbname);
 			$result = mysqli_query($con,$query);
-			mysqli_close($con);
+			//mysqli_close($con);
 			return $result;
 
 		}
@@ -73,7 +71,7 @@
 		**********Insert  user in database***************
 		********************************************************
 		********************************************************/
-		function insert_user($contact,$fname,$lname,$email,$password,$username)
+		function insert_user($contact,$fname,$lname,$email,$password,$username,$tmpname,$filename)
 		{ 
 			
 				if(!empty($fname) && !empty($lname) && !empty($password) && !empty($email) && !empty($username))
@@ -85,7 +83,17 @@
 									
 						if($insert)
 						{
+
+					$target_dir = '../images/';
+					$target_file = $target_dir.md5($username).".jpg";
+					
+					if(move_uploaded_file($tmpname,$target_file))
+					{
+			
 							return 'true';
+					}
+					else
+							return 'file upload Error';		
 						}
 						else
 						{
@@ -169,17 +177,56 @@
 		function getUsers()
 		{
 
-			$users = sql_query(" select * from user");
+			$users = sql_query("select * from user");
 			
-			return $users;	
+			
+			$mainData = array();
+				
+				
+				while($record = mysqli_fetch_array($users))
+				{
+					array_push($mainData, "fname"=>$record['fname'],"lname"=>$record['lname']);	
+				}
+				
+				return $mainData;
 		
 		}
 
 
-		function trackUser( $uid, $date , $timeStart ,$timeEnd,$locationBit,$activeBit )
+		function trackUser( $uid, $date , $timeStart ,$timeEnd,$locationBit,$activeBit , $tmpname, $filename)
 		{
-								
-								
+		
+					$insert = sql_query( "insert into locationData ( uid, date, timeStart, timeEnd, locationBit, activeBit ) values ( '$uid','$date','$timeStart','$timeEnd','locationBit', '$activeBit' )" );
+									
+						if( $insert )
+						{
+
+						if (!file_exists('../images/'.$username)) 
+						{
+							mkdir('../images/'.$username, 0775, true);
+						}	
+					
+						$target_dir = '../images/'.$username.'/';
+						
+						$target_file = $target_dir.md5($timeStart).".jpg";
+						
+						if( move_uploaded_file( $tmpname,$target_file ) )
+						{
+							return 'true';
+						}
+						else
+							return 'file upload Error';		
+	}
+						else
+						{
+							return 'Error in sql query';
+						}
+		
+		}
+
+		function trackUserApp( $uid, $date , $timeStart ,$timeEnd,$locationBit,$activeBit )
+		{
+		
 					$insert = sql_query( "insert into locationData ( uid, date, timeStart, timeEnd, locationBit, activeBit ) values ( '$uid','$date','$timeStart','$timeEnd','locationBit', '$activeBit' )" );
 									
 						if( $insert )
@@ -190,29 +237,24 @@
 						{
 							return 'Error in sql query';
 						}
-				
-				}
-				else
-				{
-					return 'Welcome Hacker';
-				}
-
+		
 		}
 		
 
 		function getUser($username, $password)
 		{
 
-			$epassword = encryptPassword($password);
+			$ePassword = encryptPassword( $password );
 
-			$log=sql_query(" select * from user where username = '$username' and password = '$ePassword' ");
+			$log = sql_query (" select * from user where username = '$username' and password = '$ePassword' ");
 					
 					if(mysqli_num_rows($log)>0)
 					{
-						return $log;
+						return mysqli_fetch_array($log);
 					}
 					else
 						return 'false';				
+		
 		}
 
 
@@ -236,7 +278,7 @@
 	
 			if($_POST['action']=='signup')
 			{
-				$signup = insert_user($_POST['contact'],$_POST['fname'],$_POST['lname'],$_POST['email'],$_POST['password'],$_POST['username']);
+				$signup = insert_user($_POST['contact'],$_POST['fname'],$_POST['lname'],$_POST['email'],$_POST['password'],$_POST['username'], $_FILES['file']['tmp_name'], $_FILES['file']['name']);
 				
 					echo json_encode($signup);
 			
@@ -249,7 +291,7 @@
 				echo json_encode($login);
 			}
 
-			else if($_POST['action']=='assignLocation')
+			else if( $_POST['action']=='assignLocation' )
 			{
 				$assign = assignLocation($_POST['uid'],$_POST['lat'],$_POST['lng'],$_POST['startTime'],$_POST['endTime']);
 				
@@ -258,32 +300,39 @@
 
 			else if($_POST['action']=='trackUser')
 			{
-				$assign = trackUser($_POST['uid'],$_POST['date'],$_POST['timeStart'],$_POST['timeEnd'],$_POST['localhostBit'],$_POST['activeBit']);
+				$assign = trackUser($_POST['uid'],$_POST['date'],$_POST['timeStart'],$_POST['timeEnd'],$_POST['localtionBit'],$_POST['activeBit'], $_FILES['file']['tmp_name'], $_FILES['file']['name']);
 				
 				echo json_encode($assign);
 			}
+
+			else if($_POST['action']=='trackUserApp')
+			{
+				$assign = trackUserApp($_POST['uid'],$_POST['date'],$_POST['timeStart'],$_POST['timeEnd'],$_POST['locationBit'],$_POST['activeBit']);
+				
+				echo json_encode($assign);
+			}
+
 
 			else if($_POST['action']=='userLogin')
 			{
-				$assign = getUser($_POST['uid']);
+				$assign = getUser($_POST['username'],$_POST['password']);
 				
 				echo json_encode($assign);
 			}
 
-			else if($_POST['action']=='getUsers')
+			else if($_POST['action'] == 'getUsers')
 			{
 				$users = getUsers();
 				
 				echo json_encode($users);
 			}
 
-			else if($_POST['action']=='getUserLocationData')
+			else if( $_POST['action']=='getUserLocationData')
 			{
-				$result = getUserLocationData($POST['uid']);
+				$result = getUserLocationData( $POST['uid'] );
 
 				echo json_encode($result);
 			}
-
 
 			else if($_POST['action']=='logout')
 			{
