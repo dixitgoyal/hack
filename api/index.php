@@ -143,8 +143,7 @@
 
 				else
 				{ 
-					//$epassword=encryptPassword($password);
-			
+
 					$log=sql_query(" select * from adminLogin where username = '$username' ");
 					
 					if(mysqli_num_rows($log)>0)
@@ -153,15 +152,13 @@
 						{
 							if($row['password'] == $password)
 							{	
-								$_SESSION['id']=$row['id'];
-								$_SESSION['fname']=$row['fname'];
 								return 'true';
 							}
 							else
-								return 'Please enter correct email or password';
+								return 'Please enter correct username or password';
 						}
 						else
-							return 'Please enter correct email or password';				
+							return 'Please enter correct username or password';				
 					}
 					else
 						return 'Please enter valid credentials';				
@@ -177,7 +174,61 @@
 			return $users;	
 		
 		}
+
+
+		function trackUser( $uid, $date , $timeStart ,$timeEnd,$locationBit,$activeBit )
+		{
+								
+								
+					$insert = sql_query( "insert into locationData ( uid, date, timeStart, timeEnd, locationBit, activeBit ) values ( '$uid','$date','$timeStart','$timeEnd','locationBit', '$activeBit' )" );
+									
+						if( $insert )
+						{
+							return 'true';
+						}
+						else
+						{
+							return 'Error in sql query';
+						}
+				
+				}
+				else
+				{
+					return 'Welcome Hacker';
+				}
+
+		}
 		
+
+		function getUser($username, $password)
+		{
+
+			$epassword = encryptPassword($password);
+
+			$log=sql_query(" select * from user where username = '$username' and password = '$ePassword' ");
+					
+					if(mysqli_num_rows($log)>0)
+					{
+						return $log;
+					}
+					else
+						return 'false';				
+		}
+
+
+		function getUserLocationData($id)
+		{
+			
+	
+			$log = sql_query(" select * from assignLocation where uid= '$id'");
+					
+					if(mysqli_num_rows($log)>0)
+					{
+						return $log;
+					}
+					else
+						return 'false';				
+		}
 
 
 		if(isset($_POST['action']))
@@ -205,11 +256,32 @@
 				echo json_encode($assign);
 			}
 
+			else if($_POST['action']=='trackUser')
+			{
+				$assign = trackUser($_POST['uid'],$_POST['date'],$_POST['timeStart'],$_POST['timeEnd'],$_POST['localhostBit'],$_POST['activeBit']);
+				
+				echo json_encode($assign);
+			}
+
+			else if($_POST['action']=='userLogin')
+			{
+				$assign = getUser($_POST['uid']);
+				
+				echo json_encode($assign);
+			}
+
 			else if($_POST['action']=='getUsers')
 			{
 				$users = getUsers();
 				
 				echo json_encode($users);
+			}
+
+			else if($_POST['action']=='getUserLocationData')
+			{
+				$result = getUserLocationData($POST['uid']);
+
+				echo json_encode($result);
 			}
 
 
