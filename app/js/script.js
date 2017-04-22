@@ -22,7 +22,7 @@ $('#loginform').submit(function(e) {
             $('#loginform')[0].reset();
 
             if(result == 'true')
-                window.open('../index.php','_self');
+                window.open('../index.html','_self');
             else
                 alert(result);
     	

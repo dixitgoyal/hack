@@ -1,0 +1,26 @@
+$_POST['action']=='signup': 
+
+	$_POST['role']=='1': // signup for normal user
+	
+		$_POST['name']
+		$_POST['email']
+		$_POST['password']
+	
+	$_POST['role']=='3': // signup for merchant admin
+		
+		$_POST['domain']:
+					
+				$_POST['name']
+				$_POST['email']
+				$_POST['password']
+				$_POST['domain']
+				$_POST['category']
+
+$_POST['action']=='login': //return id of user after successfull 
+
+	$_POST['email']
+	$_POST['password']
+	
+$_POST['action']=='info': //
+	
+	$_POST['user_id']	

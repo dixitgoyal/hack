@@ -1,0 +1,188 @@
+<?php
+
+	/* Include Database Configuration */
+	    include 'connection.php';
+
+
+	/* Include Mails Utility ***/
+	
+           include 'mailUtil/mail.php';
+	
+
+	/* Include Functions Library ***/
+	
+           include 'lib/functions.php';
+	
+
+	$imageBankPath = "post/imageBank/";			
+	
+	
+		if(isset($_POST['action']))
+		{
+			if($_POST['action']=='createUser')
+			{
+			$signup=insertUser($normalCon,$_POST['firstname'],$_POST['lastname'],$_POST['industryname'],$_POST['companyname'],$_POST['contact'],$_POST['timezone'],$_POST['email'],$_POST['password'],$_POST['captcha']);
+			
+			echo json_encode($signup);	
+			
+			}
+			else if($_POST['action']=='login')
+			{
+			$login=checkUser($normalCon,$_POST['email'],$_POST['password']);
+			
+			echo json_encode($login);	
+			
+			}
+			else if($_POST['action']=='logout')
+			{
+			$logout=logout($_POST['authToken'],$normalCon);
+			
+			echo json_encode($logout);	
+			
+			}
+			else if($_POST['action']=='createProject')
+			{
+			
+			$project=createProject($_POST['authToken'],$normalCon,$_POST['name'],$_POST['preselection'],$_POST['captureTimestamp'],$_POST['dataSize'],$_POST['totalImages'],$_POST['deviceName'],$_POST['deviceModel'],$_POST['quality'],$_POST['outputType']);
+			
+			echo json_encode($project);	
+			}
+			else if($_POST['action']=='uploadImage')
+			{
+			
+			$image=uploadImage($imageBankPath,$_POST['authToken'],$normalCon,$_FILES['file']['tmp_name'],$_FILES['file']['name'],$_POST['lat'],$_POST['lng'],$_POST['size'],$_POST['imageId'],$_POST['deviceModel'],$_POST['deviceName'],$_POST['projectId']);
+			
+			echo json_encode($image);	
+			
+			}
+			else if($_POST['action']=='listProjects')
+			{
+			
+			$projects=listProjects($_POST['authToken'],$normalCon);
+			
+			echo json_encode($projects);	
+			
+			}
+			else if($_POST['action']=='getProjectById')
+			{
+			
+			$project=getProjectById($_POST['authToken'],$normalCon,$_POST['Id']);
+			
+			echo json_encode($project);	
+			
+			}
+			else if($_POST['action']=='updateProjectById')
+			{
+			
+			$project=updateProjectById($_POST['authToken'],$normalCon,$_POST['projectId'],$_POST['name'],$_POST['quality'],$_POST['outputType']);
+			
+			echo json_encode($project);	
+			
+			}
+			else if($_POST['action']=='getMarkers')
+			{
+			
+			$markers=getMarkersByProjectId($_POST['authToken'],$normalCon,$_POST['projectId']);
+			
+			echo json_encode($markers);	
+			
+			}
+			else if($_POST['action']=='getImagesById')
+			{
+			
+			$images=getImagesByProjectId($_POST['authToken'],$normalCon,$_POST['projectId'],$_POST['upperLimit'],$_POST['lowerLimit']);
+			
+			echo json_encode($images);	
+			
+			}
+			else if($_POST['action']=='deleteImageById')
+			{
+			
+			$image=deleteImageById($imageBankPath,$_POST['authToken'],$normalCon,$_POST['projectId'],$_POST['imageId'],$_POST['imageName']);
+			
+			echo json_encode($image);	
+			
+			}
+			else if($_POST['action']=='getImageById')
+			{
+			
+			$image=getImageById($_POST['authToken'],$normalCon,$_POST['imageId']);
+			
+			echo json_encode($image);	
+			
+			}
+			
+			else if($_POST['action']=='deleteProject')
+			{
+			
+			$project=deleteProjectById($imageBankPath,$_POST['authToken'],$normalCon,$_POST['projectId']);
+			
+			echo json_encode($project);	
+			
+			}
+			
+			else if($_POST['action']=='getClientById')
+			{
+			
+			$client = getClientById($_POST['authToken'],$normalCon);
+			
+			echo json_encode($client);	
+			
+			}
+			else if($_POST['action']=='updateClientById')
+			{
+			
+			$client = updateClientById($_POST['authToken'],$normalCon,$_POST['firstName'],$_POST['lastName'],$_POST['industryName'],$_POST['companyName'],$_POST['contactNo'],$_POST['timeZone'],$_POST['email']);
+			
+			echo json_encode($client);	
+			
+			}
+			
+			else if($_POST['action']=='listCollectors')
+			{
+			
+			$collectors = listCollectors($_POST['authToken'],$normalCon);
+			
+			echo json_encode($collectors);	
+			
+			}
+			
+			else if($_POST['action']=='createCollector')
+			{
+			
+			$collector = createCollector($_POST['authToken'],$normalCon,$_POST['name'],$_POST['email'],$_POST['password']);
+			
+			echo json_encode($collector);	
+			
+			}
+			
+			else if($_POST['action']=='forgotpassword')
+			{
+			
+			$forgot = forgotpassword($normalCon,$_POST['email']);
+			
+			echo json_encode($forgot);	
+			
+			}
+
+			else if($_POST['action']=='resetpassword')
+			{
+			
+			$reset = resetpassword($normalCon,$_POST['email'], $_POST['key'], $_POST['password']);
+			
+			echo json_encode($reset);	
+			
+			}
+			
+			else
+			{
+			echo json_encode("0");
+			}
+		}
+
+		else
+		{
+			echo json_encode("0");	
+		}
+				
+?>

@@ -185,20 +185,15 @@
 				
 				while($record = mysqli_fetch_array($users))
 				{
-					array_push($mainData, array("fname"=>$record['fname'],"lname"=>$record['lname'], 'id'=>$record['id']));	
+					array_push($mainData, "fname"=>$record['fname'],"lname"=>$record['lname']);	
 				}
-			//	$record = mysqli_fetch_array($users);
 				
-				//array_push($mainData, "fname"=>$record['fname'],"lname"=>$record['lname']);	
-
-				$data = array("data"=>$mainData,"status"=>"success");
-				
-				return $data;
+				return $mainData;
 		
 		}
 
 
-		function trackUser( $uid, $date , $timeStart ,$timeEnd,$locationBit,$activeBit )
+		function trackUser( $uid, $date , $timeStart ,$timeEnd,$locationBit,$activeBit , $tmpname, $filename)
 		{
 		
 					$insert = sql_query( "insert into locationData ( uid, date, timeStart, timeEnd, locationBit, activeBit ) values ( '$uid','$date','$timeStart','$timeEnd','locationBit', '$activeBit' )" );
@@ -206,8 +201,22 @@
 						if( $insert )
 						{
 
+						if (!file_exists('../images/'.$username)) 
+						{
+							mkdir('../images/'.$username, 0775, true);
+						}	
+					
+						$target_dir = '../images/'.$username.'/';
+						
+						$target_file = $target_dir.md5($timeStart).".jpg";
+						
+						if( move_uploaded_file( $tmpname,$target_file ) )
+						{
 							return 'true';
 						}
+						else
+							return 'file upload Error';		
+	}
 						else
 						{
 							return 'Error in sql query';
@@ -218,13 +227,10 @@
 		function trackUserApp( $uid, $date , $timeStart ,$timeEnd,$locationBit,$activeBit )
 		{
 		
-					$insert = sql_query( "insert into locationData ( uid, date, timeStart, timeEnd, locationBit, activeBit ) values ( '$uid','$date','$timeStart','$timeEnd','$locationBit', '$activeBit' )" );
+					$insert = sql_query( "insert into locationData ( uid, date, timeStart, timeEnd, locationBit, activeBit ) values ( '$uid','$date','$timeStart','$timeEnd','locationBit', '$activeBit' )" );
 									
 						if( $insert )
 						{
-
-							//shell_exec("face_recognition recognizedFaces/ UnknownImages/".$imagename." | cut -d ',' -f2");
-							
 							return 'true';
 						}
 						else
@@ -256,23 +262,14 @@
 		{
 			
 	
-			$log = sql_query(" select * from locationData where uid = '$id'");
+			$log = sql_query(" select * from assignLocation where uid= '$id'");
 					
-					
-				//$record = mysqli_fetch_array($log);
-
-							$mainData = array();
-				
-				
-				while($record = mysqli_fetch_array($log))
-				{
-					array_push( $mainData, array("activeBit"=>$record['activeBit'],"timeStart"=>$record['timeStart'],"locationBit" => $record['locationBit']) );	
-				}
-
-				$data = array("data"=>$mainData,"status"=>"success");
-				
-				return $data;
-						
+					if(mysqli_num_rows($log)>0)
+					{
+						return $log;
+					}
+					else
+						return 'false';				
 		}
 
 
@@ -303,7 +300,7 @@
 
 			else if($_POST['action']=='trackUser')
 			{
-				$assign = trackUser($_POST['uid'],$_POST['date'],$_POST['timeStart'],$_POST['timeEnd'],$_POST['locationBit'],$_POST['activeBit']);
+				$assign = trackUser($_POST['uid'],$_POST['date'],$_POST['timeStart'],$_POST['timeEnd'],$_POST['localtionBit'],$_POST['activeBit'], $_FILES['file']['tmp_name'], $_FILES['file']['name']);
 				
 				echo json_encode($assign);
 			}
@@ -330,9 +327,9 @@
 				echo json_encode($users);
 			}
 
-			else if( $_POST['action'] == 'getUserLocationData')
+			else if( $_POST['action']=='getUserLocationData')
 			{
-				$result = getUserLocationData($_POST['uid']);
+				$result = getUserLocationData($POST['uid']);
 
 				echo json_encode($result);
 			}
