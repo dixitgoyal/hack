@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "246943011738",
+    "firebase_url": "https://locmon-fae24.firebaseio.com",
+    "project_id": "locmon-fae24",
+    "storage_bucket": "locmon-fae24.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:246943011738:android:11fa0a742211510f",
+        "android_client_info": {
+          "package_name": "osdchack.com.locmon"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "246943011738-7bileinoh5mq5vdcit9cfggr00k0hhd9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYaV0EsyuWcIFw0IasmP6tYv2W0H4KEOI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
